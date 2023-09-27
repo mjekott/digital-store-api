@@ -9,6 +9,7 @@ import { LoginDto } from 'src/auth/dto/login.dto';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { IUserService } from './user.interface';
 import { UserRepository } from './user.respository';
+import { userTypes } from './user.schema';
 
 @Injectable()
 export class UserService implements IUserService {
@@ -41,5 +42,9 @@ export class UserService implements IUserService {
       return user;
     }
     return null;
+  }
+
+  async getUsers(type?: userTypes) {
+    return this.userRepository.getUsers(type);
   }
 }
