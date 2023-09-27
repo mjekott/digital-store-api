@@ -11,6 +11,7 @@ export class SendResetPasswordDto {
 @Injectable()
 export class ResetPasswordDto {
   @IsNotEmpty()
+  @Length(6, 6, { message: 'code must be exactly 6 characters' })
   code: string;
 
   @IsNotEmpty()

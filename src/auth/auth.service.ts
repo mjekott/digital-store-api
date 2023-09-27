@@ -191,11 +191,7 @@ export class AuthService {
 
   private async sendVerificationToken(email: string) {
     const verificationOtp = this.generateRandomCode();
-    await this.redis.setex(
-      `verification_otp:${email}`,
-      1000 * 60 * 10,
-      verificationOtp,
-    );
+    await this.redis.setex(`verification_otp:${email}`, 600, verificationOtp);
 
     this.emailQueue.add(
       'verify-email',
@@ -209,7 +205,7 @@ export class AuthService {
 
   private async sendResetPasswordToken(email: string) {
     const code = this.generateRandomCode();
-    await this.redis.setex(`reset_password_otp:${email}`, 1000 * 60 * 10, code);
+    await this.redis.setex(`reset_password_otp:${email}`, 600, code);
 
     this.emailQueue.add(
       'reset-password-mail',

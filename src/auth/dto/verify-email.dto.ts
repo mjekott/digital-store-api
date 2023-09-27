@@ -9,7 +9,7 @@ export class VerifyEmailDto {
 
   @IsNotEmpty()
   @IsString()
-  @Length(6)
+  @Length(6, 6, { message: 'code must be exactly 6 characters' })
   code: string;
 }
 
