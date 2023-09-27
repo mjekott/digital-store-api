@@ -14,22 +14,41 @@ export interface Response<T> {
 export class TransformInterceptor<T>
   implements NestInterceptor<T, Response<T>>
 {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<Response<T>> {
-    const statusCode = context.switchToHttp().getResponse().statusCode;
-    const path = context.switchToHttp().getRequest().url;
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const ctx = context.switchToHttp();
+    const request = ctx.getRequest();
+
+    if (request.body) {
+      for (const key in request.body) {
+        if (typeof request.body[key] == 'string') {
+          request.body[key] = request.body[key].trim();
+          if (request.body[key].length == 0) {
+            request.body[key] = null;
+          }
+        }
+      }
+    }
+
+    //response.status = false;
     return next.handle().pipe(
-      map((data) => ({
-        message: data.message,
-        success: data.success,
-        result: data.result,
-        timestamp: new Date(),
-        statusCode,
-        path,
-        error: null,
-      })),
+      map((data) => {
+        if (data?.status && data?.message && !data?.data) {
+          return {
+            status: data.status,
+            statusCode: context.switchToHttp().getResponse().statusCode,
+            message: data.message,
+          };
+        }
+        if (data?.status && data?.message && data?.data) {
+          return {
+            status: data.status,
+            statusCode: context.switchToHttp().getResponse().statusCode,
+            message: data.message,
+            data: data.data,
+          };
+        }
+        return data;
+      }),
     );
   }
 }
