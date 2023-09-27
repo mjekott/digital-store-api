@@ -199,7 +199,7 @@ export class AuthService {
         email,
         otp: verificationOtp,
       },
-      { removeOnComplete: true },
+      { removeOnComplete: true, attempts: 3, delay: 5000, removeOnFail: true },
     );
   }
 
@@ -213,7 +213,7 @@ export class AuthService {
         email,
         code,
       },
-      { removeOnComplete: true },
+      { removeOnComplete: true, attempts: 3, delay: 5000, removeOnFail: true },
     );
   }
 
