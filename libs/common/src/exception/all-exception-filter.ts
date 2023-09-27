@@ -3,9 +3,9 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { Response } from 'express';
 
 export interface HttpExceptionResponse {
   statusCode: number;
@@ -16,27 +16,16 @@ export interface HttpExceptionResponse {
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
   constructor(private readonly httpAdapter: HttpAdapterHost) {}
-  catch(exception: any, host: ArgumentsHost) {
-    const { httpAdapter } = this.httpAdapter;
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const exceptionResponse =
-      exception instanceof HttpException
-        ? ctx.getResponse().message
-        : String(exception);
-    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const error: any = exception.getResponse();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const responseBody = {
+    response.status(status).json({
+      status: false,
       statusCode: status,
-      timeStamp: new Date().toISOString(),
-      path: request.url,
-      message: exceptionResponse || 'Something went wrong',
-    };
-
-    httpAdapter.reply(ctx.getResponse(), responseBody, status);
+      message: error.message ?? '',
+    });
   }
 }
